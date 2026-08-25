@@ -26,6 +26,7 @@ jobs:
             echo "Tag $RELEASE_TAG does not match package version $PACKAGE_VERSION" >&2
             exit 1
           }
+          grep -F "## [$PACKAGE_VERSION]" CHANGELOG.md
       - run: npm ci
       - run: npm test
       - name: Build package
