@@ -2,6 +2,10 @@
 
 [English](README.md) | Italiano
 
+[![CI](https://github.com/alsd4git/nginx-proxy-manager-ssl-cli/actions/workflows/tests.yml/badge.svg)](https://github.com/alsd4git/nginx-proxy-manager-ssl-cli/actions/workflows/tests.yml)
+[![Latest release](https://img.shields.io/github/v/release/alsd4git/nginx-proxy-manager-ssl-cli)](https://github.com/alsd4git/nginx-proxy-manager-ssl-cli/releases)
+[![License: MIT](https://img.shields.io/badge/license-MIT-yellow.svg)](LICENSE)
+
 Controlla e aggiorna le impostazioni di sicurezza dei proxy host di
 [Nginx Proxy Manager](https://github.com/NginxProxyManager/nginx-proxy-manager).
 Il pacchetto e il comando mantengono il nome storico `npm-ssl-updater`.
