@@ -1,50 +1,46 @@
-# 🔐 Nginx Proxy Manager SSL CLI
+# Nginx Proxy Manager SSL CLI
 
-[English version](README.md)
+[English](README.md) | Italiano
 
-> Aggiorna automaticamente le impostazioni di sicurezza per tutti i proxy host configurati in [Nginx Proxy Manager](https://github.com/NginxProxyManager/nginx-proxy-manager).
+Controlla e aggiorna le impostazioni di sicurezza dei proxy host di
+[Nginx Proxy Manager](https://github.com/NginxProxyManager/nginx-proxy-manager).
+Il pacchetto e il comando mantengono il nome storico `npm-ssl-updater`.
 
-> Precedentemente **npm-ssl-updater**. Il pacchetto pubblicato e il comando
-> mantengono quel nome per compatibilità con le installazioni esistenti.
+## Requisiti
 
-## 📦 Installazione
+- Node.js 20 o successivo
+- un'istanza Nginx Proxy Manager raggiungibile
+- credenziali da amministratore di Nginx Proxy Manager
+
+## Installazione
 
 ```bash
 git clone https://github.com/alsd4git/nginx-proxy-manager-ssl-cli.git
 cd nginx-proxy-manager-ssl-cli
-npm install
+npm ci
 ```
 
-### (opzionale) Installa globalmente
+Esegui il tool dal checkout con `npm start --`, oppure installa il comando
+globalmente:
 
 ```bash
 npm install -g .
+npm-ssl-updater --help
 ```
 
-## 🚀 Uso
+## Credenziali
 
-### Variabili d'ambiente
+Crea `.env` nella directory da cui esegui il comando:
 
-È possibile creare un file `.env` nella root del progetto per memorizzare le credenziali:
-
-```env
+```dotenv
 NPM_HOST=http://localhost:81
 NPM_EMAIL=admin@example.com
-NPM_PASSWORD=changeme
+NPM_PASSWORD=change-me
 ```
 
-Se il file `.env` è presente, non è necessario passare i flag `--host`, `--email` e `--password`.
-
-**Nota:** I flag passati da linea di comando hanno la precedenza sulle variabili d'ambiente.
-
-**Importante:** Se lo strumento è installato globalmente, il file `.env` deve trovarsi nella directory da cui si esegue il comando `npm-ssl-updater`.
-
-### Sicurezza delle credenziali
-
-Preferisci `.env` (ignorato da Git) oppure `--password-stdin` a
-`--password`: gli argomenti della riga di comando possono restare nella cronologia
-della shell ed essere visibili ad altri processi locali. `--password` resta
-disponibile per compatibilità con le versioni precedenti.
+I flag hanno la precedenza sulle variabili d'ambiente. Preferisci `.env` o
+`--password-stdin` a `--password`, perché gli argomenti possono comparire nella
+cronologia della shell e nella lista dei processi.
 
 ```bash
 printf '%s\n' "$NPM_PASSWORD" | npm-ssl-updater \
@@ -54,194 +50,144 @@ printf '%s\n' "$NPM_PASSWORD" | npm-ssl-updater \
   --dry-run
 ```
 
-`--password-stdin` accetta esattamente una password terminata da newline tramite
-pipe o redirezione di file; non richiede input da un terminale.
+`--password-stdin` legge una sola password terminata da newline. Non apre un
+prompt interattivo per la password.
 
-### Elenco dei domini
+Non committare `.env` e non copiare credenziali in log, issue o screenshot.
 
-Eseguendo lo script senza alcun argomento, verrà mostrata la lista di tutti i domini configurati e la loro destinazione (forward).
+## Operazioni comuni
+
+Elenca i proxy host senza modificarli:
 
 ```bash
 npm-ssl-updater
 ```
 
-Questo è il comportamento predefinito. È anche possibile usare i flag `--list-domains` o `-l` per ottenere lo stesso risultato.
+Mostra le modifiche proposte:
 
-### Modalità interattiva (tutti i flag disponibili)
+```bash
+npm-ssl-updater --block-exploits --enable-websockets --dry-run
+```
+
+Applica tutte le modifiche senza prompt interattivi:
+
+```bash
+npm-ssl-updater --block-exploits --enable-websockets --yes
+```
+
+Per controllare ogni modifica in modo interattivo, salva le credenziali in
+`.env` ed esegui:
 
 ```bash
 npm-ssl-updater \
-  --host http://localhost:81 \
-  --email admin@example.com \
   --hsts-subdomains \
   --cache-assets \
   --block-exploits \
   --enable-websockets \
-  --request-timeout 15000 \
-  --print-advanced # (opzionale) mostra la configurazione avanzata
+  --request-timeout 15000
 ```
 
-Alias disponibili per i flag:
-
-- `-l`, `--list-domains`: mostra la lista dei domini configurati
-- `--hsts-subdomains`: `--hsd`
-- `--cache-assets`: `--ca`
-- `--block-exploits`: `--bce`
-- `--enable-websockets`: `--ws`
-- `--yes`: `-y`
-
-### Applicazione non interattiva
-
-Usa `--yes` per applicare tutte le modifiche pendenti senza prompt. È la modalità consigliata per automazioni e cron job.
+La conferma interattiva richiede un terminale. Un comando che usa
+`--password-stdin` deve includere anche `--yes` oppure `--dry-run`, perché lo
+stdin collegato a una pipe non è un TTY:
 
 ```bash
-npm-ssl-updater \
+printf '%s\n' "$NPM_PASSWORD" | npm-ssl-updater \
   --host http://localhost:81 \
   --email admin@example.com \
+  --password-stdin \
   --block-exploits \
+  --enable-websockets \
   --yes
 ```
 
-### Solo visualizzazione (dry-run)
+Le opzioni coprono Force SSL, HTTP/2, HSTS, sottodomini HSTS, cache degli asset,
+blocco degli exploit comuni e WebSocket. Esegui `npm-ssl-updater --help` per
+l'elenco completo dei flag e degli alias.
+
+`npm-ssl-updater --print-advanced` stampa soltanto l'`advanced_config` corrente
+di ogni host. Nella stessa esecuzione non controlla e non aggiorna i campi di
+sicurezza.
+
+## Certificati e access list
 
 ```bash
-npm-ssl-updater \
-  --host http://localhost:81 \
-  --email admin@example.com \
-  --dry-run
+npm-ssl-updater --list-certificates
+npm-ssl-updater --list-access-lists
 ```
 
-### Aggiornare `advanced_config` di un host specifico
+Questi comandi non modificano Nginx Proxy Manager. Servono a recuperare ID e
+nomi da usare nelle automazioni.
 
-Quando devi aggiornare solo lo snippet `advanced_config` di un proxy host, usa il percorso dedicato con payload minimale:
-
-```bash
-npm-ssl-updater \
-  --host http://localhost:81 \
-  --email admin@example.com \
-  --advanced-config-host-id 36 \
-  --advanced-config-file ./media/NPM-extraconf.conf
-```
-
-È disponibile anche `--advanced-config-dry-run` per verificare il file senza applicare modifiche.
-
-Questo helper esiste perché alcuni host NPM possono ignorare `advanced_config` quando il payload di update è troppo grande o include campi non necessari. Il percorso dedicato manda solo lo snippet avanzato, riducendo il rischio di regressioni.
-
-### Elencare i certificati
-
-Puoi vedere i certificati già presenti in Nginx Proxy Manager con:
+## Creare o aggiornare un proxy host
 
 ```bash
 npm-ssl-updater \
-  --host http://localhost:81 \
-  --email admin@example.com \
-  --list-certificates
-```
-
-È utile quando vuoi recuperare l'ID di un certificato esistente o verificare quale wildcard copre un host.
-
-### Elencare le access list
-
-Puoi vedere le access list già presenti in Nginx Proxy Manager con:
-
-```bash
-npm-ssl-updater \
-  --host http://localhost:81 \
-  --email admin@example.com \
-  --list-access-lists
-```
-
-È utile quando vuoi recuperare una access list con nome, ad esempio `local-only`, e riusarla su un proxy host.
-
-### Helper proxy host
-
-Quando vuoi creare o aggiornare un proxy host, usa l'helper dedicato. Cerca automaticamente un certificato compatibile in NPM tramite dominio e wildcard. Se serve, puoi forzare il certificato con `--proxy-certificate-id`.
-
-```bash
-npm-ssl-updater \
-  --host http://localhost:81 \
-  --email admin@example.com \
   --upsert-proxy-host \
   --proxy-domain app.example.com \
   --proxy-forward-host app \
   --proxy-forward-port 3000 \
-  --proxy-advanced-config-file ./path/to/NPM-extraconf.conf
+  --proxy-access-list-name local-only \
+  --proxy-advanced-config-file ./media/NPM-extraconf.conf \
+  --proxy-dry-run
 ```
 
-Flag proxy host disponibili:
+L'helper cerca un certificato esatto o wildcard, a meno che
+`--proxy-certificate-id` non ne forzi uno. Rimuovi `--proxy-dry-run` solo dopo
+aver controllato l'operazione proposta.
 
-- `--proxy-domain`: hostname pubblico del proxy host
-- `--proxy-forward-host`: host upstream del container, default `app`
-- `--proxy-forward-port`: porta upstream, default `3000`
-- `--proxy-forward-scheme`: schema upstream, default `http`
-- `--proxy-certificate-id`: forza un ID certificato specifico
-- `--proxy-certificate-domain`: usa un dominio diverso come hint per la selezione automatica del certificato
-- `--proxy-access-list-id`: forza un ID access list specifico
-- `--proxy-access-list-name`: usa una access list nominata, ad esempio `local-only`
-- `--proxy-advanced-config-file`: applica uno snippet `advanced_config` dopo la creazione o l'aggiornamento dell'host
-- `--proxy-dry-run`: mostra l'operazione senza applicare modifiche
-
-## ✨ Cosa fa
-
-- Mostra lo stato attuale delle opzioni di sicurezza
-- Confronta con le modifiche proposte
-- Supporta modalità interattiva con conferma (`yes`, `no`, `all`)
-- Supporta esecuzione non interattiva sicura con `--yes`
-- Supporta `--dry-run` per visualizzare senza modificare
-- Usa timeout espliciti sulle richieste per evitare blocchi indefiniti verso istanze NPM non sane
-- Supporta un helper dedicato per aggiornare `advanced_config` di un singolo host con payload minimale
-- Supporta opzioni extra:
-  - `--cache-assets`: abilita cache per asset statici
-  - `--block-exploits`: attiva protezione contro exploit comuni (con intelligenza integrata)
-  - `--enable-websockets`: attiva il supporto WebSocket
-- Mantiene `--block-exploits` disattivato solo per `tinyauth`, perché Tinyauth si basa su forwarded host e query parameters dietro NPM.
-
-## 🔧 Esclusione automatica da `--block-exploits`
-
-Alcuni servizi (es. autenticazione o admin panel) possono rompersi se "Block Common Exploits" è abilitato.
-
-Lo script salta `block_exploits` solo per `tinyauth`, perché Tinyauth ha bisogno di forwarded host e query parameters integri dietro NPM.
-
-Puoi modificarlo nel file `update_ssl.js`:
-
-```js
-const blockExploitsExceptions = ['tinyauth'];
-```
-
-Per gli snippet `advanced_config`, usa il percorso dedicato:
+## Aggiornare una configurazione avanzata
 
 ```bash
 npm-ssl-updater \
-  --host http://localhost:81 \
-  --email admin@example.com \
   --advanced-config-host-id 36 \
-  --advanced-config-file ./media/NPM-extraconf.conf
+  --advanced-config-file ./media/NPM-extraconf.conf \
+  --advanced-config-dry-run
 ```
 
-## ✅ Esempio output
+Questo percorso invia un payload minimo per un solo host e non ritrasmette i
+campi del proxy che non devono cambiare.
 
-```bash
-🔧 Proxy: example.duckdns.org
-🔁 ssl_forced              : ❌ → ✅
-🔁 http2_support           : ❌ → ✅
-   hsts_enabled            : ✅ → ✅
-   hsts_subdomains         : ❌ → ❌
-   block_exploits          : ✅ → ✅
-   caching_enabled         : ❌ → ❌
-🔁 allow_websocket_upgrade : ❌ → ✅
+## Eccezione block-exploits
+
+Il tool lascia `block_exploits` disattivato per gli host Tinyauth, perché questa
+opzione può rompere forwarded host e query parameter usati da Tinyauth. Gli
+altri host seguono l'impostazione richiesta.
+
+## Esempio di output
+
+```text
+Proxy: example.duckdns.org
+ - ssl_forced               no -> yes
+ - http2_support            no -> yes
+ - allow_websocket_upgrade  no -> yes
 Apply changes? ([y]es / [n]o / [a]ll): y
    Change applied.
+
+Completed. Updated 1 host(s).
 ```
 
-## 🛡 Requisiti
+Questo è il formato stampato dallo script, che non traduce i messaggi. Vengono
+elencati solo i campi il cui valore cambierebbe; quelli già conformi sono
+omessi. Un host completamente conforme viene indicato con
+`Already compliant: example.duckdns.org`. Con `--dry-run`, il prompt e il
+messaggio di aggiornamento vengono sostituiti da
+`Dry-run mode: no changes applied.`
 
-- Nginx Proxy Manager attivo e raggiungibile
-- Credenziali admin valide
-- Node.js 18+ (`nvm use` consigliato)
+## Sviluppo
 
----
+```bash
+npm ci
+npm test
+npm pack --dry-run
+```
 
-## 📃 Licenza
+La CI esegue i test sulle linee Node.js supportate. Le release allegano il
+tarball npm a GitHub e non lo pubblicano nel registry npm.
 
-MIT License - Fai quello che vuoi, ma linka l'autore :)
-© [Alessandro Digilio](https://github.com/alsd4git)
+Vedi [CHANGELOG.md](CHANGELOG.md) e le
+[release GitHub](https://github.com/alsd4git/nginx-proxy-manager-ssl-cli/releases).
+
+## Licenza
+
+MIT. Vedi [LICENSE](LICENSE).
