@@ -18,18 +18,36 @@ Il pacchetto e il comando mantengono il nome storico `npm-ssl-updater`.
 
 ## Installazione
 
+Esegui direttamente una versione taggata da GitHub, senza clonare la repository:
+
+```bash
+npx -y github:alsd4git/nginx-proxy-manager-ssl-cli#v1.0.0 --help
+```
+
+Oppure installa globalmente la stessa versione:
+
+```bash
+npm install -g github:alsd4git/nginx-proxy-manager-ssl-cli#v1.0.0
+npm-ssl-updater --help
+```
+
+Le GitHub Release contengono anche il tarball esatto prodotto da `npm pack`,
+utile se vuoi installare direttamente l'artefatto pubblicato:
+
+```bash
+npm install -g https://github.com/alsd4git/nginx-proxy-manager-ssl-cli/releases/download/v1.0.0/npm-ssl-updater-1.0.0.tgz
+```
+
+Gli esempi sono intenzionalmente bloccati a un tag. Sostituisci `v1.0.0` con la
+versione desiderata invece di affidarti al branch di default corrente.
+
+Per lo sviluppo da checkout:
+
 ```bash
 git clone https://github.com/alsd4git/nginx-proxy-manager-ssl-cli.git
 cd nginx-proxy-manager-ssl-cli
 npm ci
-```
-
-Esegui il tool dal checkout con `npm start --`, oppure installa il comando
-globalmente:
-
-```bash
-npm install -g .
-npm-ssl-updater --help
+npm start -- --help
 ```
 
 ## Credenziali
