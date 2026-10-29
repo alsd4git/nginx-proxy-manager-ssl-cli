@@ -22,3 +22,11 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm test
+      - name: Smoke-test packed artifact outside the checkout
+        run: |
+          ARTIFACT_DIR="$(mktemp -d)"
+          npm pack --pack-destination "$ARTIFACT_DIR"
+          PREFIX="$(mktemp -d)"
+          npm install --global --prefix "$PREFIX" "$ARTIFACT_DIR"/*.tgz
+          cd "$PREFIX"
+          "$PREFIX/bin/npm-ssl-updater" --help
