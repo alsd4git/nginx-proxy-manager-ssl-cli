@@ -24,6 +24,9 @@ L'anteprima elenca solo i campi che cambierebbero. Usa `--dry-run` prima di
 
 ![Esempio di output con anteprima delle modifiche di sicurezza](assets/dry-run-example.svg)
 
+L'anteprima è generata dal CLI effettivo usando fixture API sintetiche locali.
+Consulta [le istruzioni per rigenerarla](docs/demo.md).
+
 ## Requisiti
 
 - Node.js 20 o successivo

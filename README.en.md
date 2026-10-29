@@ -24,6 +24,9 @@ The preview shows only fields that would change. Use `--dry-run` before
 
 ![Example output showing a dry-run of proxy security changes](assets/dry-run-example.svg)
 
+This preview is generated from the actual CLI and local synthetic API fixtures.
+See [how to regenerate it](docs/demo.md).
+
 ## Requirements
 
 - Node.js 20 or newer
