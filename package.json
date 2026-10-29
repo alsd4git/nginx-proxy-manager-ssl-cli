@@ -11,6 +11,8 @@
     "update_ssl.js",
     "README.en.md",
     "README.it.md",
+    "README.md",
+    "assets/",
     "LICENSE",
     ".env.example"
   ],
