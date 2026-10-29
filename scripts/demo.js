@@ -54,7 +54,7 @@ function renderSvg(output) {
   <rect width="100%" height="42" rx="12" fill="#1f2937"/>
   <circle cx="22" cy="21" r="6" fill="#f87171"/><circle cx="44" cy="21" r="6" fill="#fbbf24"/><circle cx="66" cy="21" r="6" fill="#34d399"/>
   <text x="${width / 2}" y="26" fill="#d1d5db" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="13" text-anchor="middle">npm-ssl-updater --block-exploits --enable-websockets --dry-run</text>
-  <g font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="14">
+  <g font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="14" xml:space="preserve">
     ${renderedLines}
   </g>
   <text x="28" y="${height - 20}" fill="#9ca3af" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="12">Synthetic fixture data · captured from actual CLI · no network access</text>
