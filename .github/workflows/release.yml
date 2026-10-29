@@ -36,6 +36,7 @@ jobs:
           PACKAGE_TGZ="$(ls ./*.tgz)"
           PREFIX="$(mktemp -d)"
           npm install --global --prefix "$PREFIX" "$PACKAGE_TGZ"
+          cd "$PREFIX"
           "$PREFIX/bin/npm-ssl-updater" --help
       - name: Create GitHub release
         env:
