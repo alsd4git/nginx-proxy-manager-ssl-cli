@@ -10,6 +10,23 @@ Controlla e aggiorna le impostazioni di sicurezza dei proxy host di
 [Nginx Proxy Manager](https://github.com/NginxProxyManager/nginx-proxy-manager).
 Il pacchetto e il comando mantengono il nome storico `npm-ssl-updater`.
 
+Puoi iniziare con un inventario in sola lettura, visualizzare le modifiche
+proposte e poi applicarle con conferma interattiva o con `--yes`:
+
+```text
+npm-ssl-updater --list-domains
+npm-ssl-updater --block-exploits --enable-websockets --dry-run
+npm-ssl-updater --block-exploits --enable-websockets --yes
+```
+
+L'anteprima elenca solo i campi che cambierebbero. Usa `--dry-run` prima di
+`--yes` per controllare la richiesta senza modificare Nginx Proxy Manager.
+
+![Esempio di output con anteprima delle modifiche di sicurezza](assets/dry-run-example.svg)
+
+L'anteprima è generata dal CLI effettivo usando fixture API sintetiche locali.
+Consulta [le istruzioni per rigenerarla](docs/demo.md).
+
 ## Requisiti
 
 - Node.js 20 o successivo
