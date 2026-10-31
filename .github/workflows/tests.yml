@@ -10,6 +10,7 @@ permissions:
 
 jobs:
   test:
+    name: ${{ matrix.os == 'ubuntu-latest' && format('test ({0})', matrix.node-version) || format('test ({0}, {1})', matrix.os, matrix.node-version) }}
     strategy:
       matrix:
         os: [ubuntu-latest, macos-latest, windows-latest]
@@ -25,6 +26,7 @@ jobs:
       - run: npm test
 
   node-20-compatibility:
+    name: test (20)
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
