@@ -53,14 +53,21 @@ test("packaged CLI entrypoint shows help without loading the project .env", () =
 
 test("npm package includes the executable and runtime files", () => {
   const repositoryRoot = path.join(__dirname, "..");
-  const result = spawnSync("npm", ["pack", "--dry-run", "--json", "--ignore-scripts"], {
+  const npmArgs = ["pack", "--dry-run", "--json", "--ignore-scripts"];
+  const isWindows = process.platform === "win32";
+  // Windows exposes npm as a batch script. Only fixed test arguments enter
+  // this shell command; no paths, credentials or user input are interpolated.
+  const command = isWindows ? `npm.cmd ${npmArgs.join(" ")}` : "npm";
+  const result = spawnSync(command, isWindows ? [] : npmArgs, {
+    shell: isWindows,
     cwd: repositoryRoot,
     encoding: "utf8",
     env: environmentWithoutNpmCredentials(),
     timeout: 15000,
   });
 
-  assert.equal(result.status, 0, result.stderr);
+  assert.ifError(result.error);
+  assert.equal(result.status, 0, result.stderr || "npm pack failed");
 
   const packResult = JSON.parse(result.stdout);
   const packageMetadata = Array.isArray(packResult)
